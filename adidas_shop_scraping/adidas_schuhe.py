@@ -1,6 +1,7 @@
 import csv
 import re
 import time
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 from lxml.etree import XPath
@@ -40,7 +41,7 @@ element.click()
 
 # Open 'Shoes_listings.csv' file for writing the scraped data
 with open("shoes_listings.csv", "a+", newline="", encoding="utf-8") as csvfile:
-    fieldnames = ["price", "title", "subtitle", "number_of_color","badge"]
+    fieldnames = ["price", "title", "subtitle", "number_of_color","badge","date"]
     writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
     writer.writeheader()
 
@@ -53,6 +54,7 @@ with open("shoes_listings.csv", "a+", newline="", encoding="utf-8") as csvfile:
         # Scroll down the page incrementally to load all property
         last_height = driver.execute_script("return window.pageYOffset")
         scroll_increment = 200
+
         while True:
             driver.execute_script("window.scrollTo(0, {});".format(scroll_increment))
             time.sleep(1)
@@ -66,10 +68,10 @@ with open("shoes_listings.csv", "a+", newline="", encoding="utf-8") as csvfile:
         position_y = 4000
 
         driver.execute_script("window.scrollTo(0, arguments[0]);", position_y)
-        wait = WebDriverWait(driver,10)
+        wait = WebDriverWait(driver,20)
         wait.until(EC.element_to_be_clickable((By.LINK_TEXT,"WEITER"))).click()
-        #next_page = driver.find_element(By.XPATH, '//div[contains(@class,"pagination_next__d4M5T")]//a[contains(@class, "pagination_pagination-link__AEkM_")]')
 
+        time.sleep(10)
         # parse the page source with BeautifulSoup
         soup = BeautifulSoup(driver.page_source,"html.parser")
 
@@ -89,6 +91,8 @@ with open("shoes_listings.csv", "a+", newline="", encoding="utf-8") as csvfile:
             shoes["subtitle"] = subtitle.text.strip() if subtitle else "N/A"
             shoes["number_of_color"] = number_of_color.text.strip() if number_of_color else "N/A"
             shoes ["badge"] = badge.text.strip() if badge else "N/A"
+            shoes["date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
             writer.writerow(shoes)
             print(shoes)
