@@ -23,10 +23,11 @@ def create_table_adidas_shoes(conn, cur):
         cur.execute("""
                 CREATE TABLE IF NOT EXISTS adidas_shoes (
                 shoes_id SERIAL PRIMARY KEY,
-                price VARCHAR(50),
+                price FLOAT,
                 title VARCHAR(50),
                 subtitle VARCHAR(50),
                 number_of_color VARCHAR(50),
+                badge VARCHAR(50),
                 date TIMESTAMP
              )
             """)
@@ -37,3 +38,4 @@ def create_table_adidas_shoes(conn, cur):
 
 if __name__ =="__main__":
     connection_to_db()
+    create_table_adidas_shoes(conn,cur)
