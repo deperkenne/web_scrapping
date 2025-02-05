@@ -9,6 +9,8 @@ from selenium import  webdriver
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 options = webdriver.ChromeOptions()
 options.add_experimental_option("detach", True)  # Garde la fenêtre ouverte
@@ -22,20 +24,28 @@ driver = webdriver.Chrome(options=options)
 driver.get("https://www.adidas.de/")
 
 # click on the button to open main page
-driver.find_element(By.XPATH ,'//button[@id="glass-gdpr-default-consent-accept-button"]').click()
-time.sleep(1)
+button = WebDriverWait(driver, 5).until(
+    EC.element_to_be_clickable((By.XPATH, '//button[@id="glass-gdpr-default-consent-accept-button"]'))
+)
+button.click()
+
 
 # click on the link with name shoes to print all shoes
-driver.find_element(By.XPATH ,'//a[@href="/schuhe"]').click()
-time.sleep(1)
+element = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.XPATH, '//a[@href="/schuhe"]'))
+)
+element.click()
+
+
 
 # Open 'Shoes_listings.csv' file for writing the scraped data
-with open("shoes_listings.csv", "w", newline="", encoding="utf-8") as csvfile:
-    fieldnames = ["price", "title", "subtitle", "badge"]
+with open("shoes_listings.csv", "a+", newline="", encoding="utf-8") as csvfile:
+    fieldnames = ["price", "title", "subtitle", "number_of_color","badge"]
     writer = csv.DictWriter(csvfile,fieldnames=fieldnames)
     writer.writeheader()
 
     page_count = 0
+    COUNT = 0
 
     # start a loop that will continue until the desired number of page have bee scraped
 
@@ -43,7 +53,6 @@ with open("shoes_listings.csv", "w", newline="", encoding="utf-8") as csvfile:
         # Scroll down the page incrementally to load all property
         last_height = driver.execute_script("return window.pageYOffset")
         scroll_increment = 200
-
         while True:
             driver.execute_script("window.scrollTo(0, {});".format(scroll_increment))
             time.sleep(1)
@@ -51,25 +60,44 @@ with open("shoes_listings.csv", "w", newline="", encoding="utf-8") as csvfile:
             if new_height == last_height:
                 break
             last_height = new_height
-            scroll_increment = scroll_increment + 300
+            scroll_increment = scroll_increment + 800
 
         # Find the link to the next page
-        next_page = driver.find_element(By.XPATH, '//div[contains(@class,"pagination_next_d4M5T")]//a[contains(@class, "pagination_pagination-link_AEKM")]')[1]
+        position_y = 4000
+
+        driver.execute_script("window.scrollTo(0, arguments[0]);", position_y)
+        wait = WebDriverWait(driver,10)
+        wait.until(EC.element_to_be_clickable((By.LINK_TEXT,"WEITER"))).click()
+        #next_page = driver.find_element(By.XPATH, '//div[contains(@class,"pagination_next__d4M5T")]//a[contains(@class, "pagination_pagination-link__AEkM_")]')
 
         # parse the page source with BeautifulSoup
         soup = BeautifulSoup(driver.page_source,"html.parser")
 
-        # Find all property listings on the current page
-        items = soup.find_all('footer',{'class':["product-card-description_product-card-details__zFLlG"]})
+        list_articles = soup.find_all("article",{"class":'product-grid_product-card__8ufJk'})
+        print(len(list_articles))
+        shoes = {}
+        for item in list_articles:
+            footer = item.find(re.compile("^footer"))
+            price = footer.find('div', {"class": "gl-price-item"})
+            title = footer.find('p', {'data-testid': 'product-card-title'})
+            subtitle = footer.find('p', {'data-testid': 'product-card-subtitle'})
+            number_of_color = footer.find('p', {'data-testid': 'product-card-colours'})
+            badge = footer.find("p", {'class': "product-card-description_badge__m75SV"})
 
-        # loop each items
-        for item in items:
-            shoes = {}
+            shoes["price"] = price.text.split(" ")[1].strip() if price else "N/A"
+            shoes["title"] = title.text.strip() if title else "N/A"
+            shoes["subtitle"] = subtitle.text.strip() if subtitle else "N/A"
+            shoes["number_of_color"] = number_of_color.text.strip() if number_of_color else "N/A"
+            shoes ["badge"] = badge.text.strip() if badge else "N/A"
 
-            if "product-card__product-card__a9BIh" in item["class"]:
-                fieldnames = ["price", "title", "subtitle", "badge"]
-                shoes["price"] = item.find('div', {"class": "gl-price-item"}).text
-                shoes["title"] = item.find('p', {'data-testid': 'product-card-title'}).text
-                shoes["subtitle"] =  item.find('p', {'data-testid': 'product-card-subtitle'}).text
-                shoes["badge"] = item.find('p', {'data-testid': 'product-card-badge'}).text
+            writer.writerow(shoes)
+            print(shoes)
+
+
+
+        time.sleep(5)
+
+        page_count+=1
+        print("Next Page:",page_count)
+
 

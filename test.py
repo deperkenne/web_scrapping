@@ -101,3 +101,20 @@ def print_tag_with_src_and_no_href(soup):
             pass
 
 
+while compteur < PAGE_COUNT:
+    compteur+=1
+    # click on the link with name shoes to print all shoes
+    next_pag1 = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//a[contains(@class, "pagination_pagination-link__AEkM_")]'))
+     )
+    next_pag1.click()
+
+    # loop each item_articles
+    for article in items_articles:
+        list_nav_and_a = article.find_all(['nav', 'a'],
+                                          {'data-testid': ['product-card-description-link', 'product-card-variations']})
+        for item in list_nav_and_a:
+            if 'product-card-description-link' in item['data-testid']:
+                print("link:", item)
+            else:
+                print("navvvvvvvv")
