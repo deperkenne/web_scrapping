@@ -1,11 +1,11 @@
-from pandas import DataFrame
+
 from pyspark.sql.functions import col, to_timestamp
 
 
 class DataTransform:
 
     @staticmethod
-    def transform_data_type_price_to_float(df:DataFrame,columnName):
+    def transform_data_type_price_to_float(df,columnName):
         return df.withColumn(columnName, col(columnName).cast("float"))
 
     @staticmethod

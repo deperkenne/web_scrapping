@@ -1,4 +1,4 @@
-from kafka.protocol.types import String
+
 from pyspark.sql.types import StructType, StructField, DecimalType, StringType, TimestampType
 
 shoes_df_schema = (
