@@ -7,6 +7,7 @@ from markdown_it.common.html_re import attribute
 from selenium import  webdriver
 
 from selenium import webdriver
+from selenium.webdriver.common import keys
 from selenium.webdriver.common.by import By
 
 options = webdriver.ChromeOptions()
@@ -59,6 +60,7 @@ element_css1 = driver.find_element(By.LINK_TEXT,"electro")
 # "XPath = //tagname[@attribute="value"]" format du xPath
 # find_elements() return list list de tous element qui coincide avec le filtre
 # find_element() return une variable c'est le premier qui coincide avec le fitre
-# find_element(By.XPATH, '//div[contains[@class, "Pagination_srp")]//a[contains(@class, "list_header_bold")]')[1]
+# find_element(By.XPATH, '//div[contains[@class, "Pagination_srp")]//a[contains(@class, "list_header_bold")]'
 
 """
+

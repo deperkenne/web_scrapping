@@ -5,7 +5,7 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
-from adidas_schuhe import shoes_scrapped
+from lidl_products import shoes_scrapped
 from save_data_to_db import main
 
 

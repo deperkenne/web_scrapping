@@ -8,7 +8,7 @@ def connection_to_db():
     global cur
     try:
         conn = psycopg2.connect(host="192.168.178.194",
-                                port="5432",
+                                port="5433",
                                 dbname="db",
                                 user="root",
                                 password="root")
@@ -24,10 +24,10 @@ def create_table_adidas_shoes(conn, cur):
                 CREATE TABLE IF NOT EXISTS adidas_shoes (
                 shoes_id SERIAL PRIMARY KEY,
                 price FLOAT,
-                title VARCHAR(50),
-                subtitle VARCHAR(50),
-                number_of_color VARCHAR(50),
-                badge VARCHAR(50),
+                title VARCHAR(255),
+                subtitle VARCHAR(255),
+                number_of_color VARCHAR(255),
+                badge VARCHAR(255),
                 date TIMESTAMP
              )
             """)

@@ -118,3 +118,66 @@ while compteur < PAGE_COUNT:
                 print("link:", item)
             else:
                 print("navvvvvvvv")
+
+
+def testweb(driver):
+    page_count = 0
+    PAGE_COUNT = 5
+
+    while page_count < PAGE_COUNT:
+        try:
+            scroll_y = 0
+            step = 300
+            max_scroll = 8000  # pour éviter scroll infini
+            next_button_found = False
+
+            while scroll_y < max_scroll:
+                driver.execute_script(f"window.scrollTo(0, {scroll_y});")
+                time.sleep(1)
+
+                try:
+                    next_btn = driver.find_element(By.XPATH, '//button[@rel="next"]')
+                    if next_btn.is_displayed():
+                        next_button_found = True
+                        break  # sortir du scroll dès que le bouton est visible
+                except:
+                    pass  # le bouton n'est pas encore dans le DOM ou visible
+
+                scroll_y += step
+
+            time.sleep(1)
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+            list_articles = soup.find_all("li", {"class": 's-grid__item'})
+            print(f"Page {page_count + 1} - {len(list_articles)} articles trouvés.")
+
+            find_product_categorie(list_articles)
+
+            if next_button_found:
+                wait = WebDriverWait(driver, 10)
+                next_btn = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@rel="next"]')))
+                driver.execute_script("arguments[0].scrollIntoView(true);", next_btn)
+                next_btn.click()
+            else:
+                print("Aucun bouton 'next' trouvé.")
+                break
+
+        except Exception as ex:
+            print("Erreur:", ex)
+            break
+
+        finally:
+            page_count += 1
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        all_articles = soup.find_all("li", {"class": 's-grid__item'})
+        print(f"[Page {page_count + 1}] Articles visibles : {len(all_articles)}")
+
+        # Sélectionner uniquement les nouveaux articles
+        new_articles = all_articles[total_articles_seen:]
+        print(f"→ Nouveaux articles trouvés : {len(new_articles)}")
+
+        # Traitement des nouveaux articles
+        find_product_categorie(new_articles)
+
+        # Mise à jour du compteur total
+        total_articles_seen = len(all_articles)

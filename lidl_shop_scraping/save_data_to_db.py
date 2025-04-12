@@ -7,6 +7,20 @@ from shoes_df_schema import shoes_df_schema
 from data_transform import  DataTransform
 
 
+
+
+# Créer une session Spark connectée au cluster
+spark = SparkSession.builder \
+    .appName("Simple Spark App") \
+    .master("spark://192.168.178.194:7077") \
+    .getOrCreate()
+
+
+
+
+# Arrêter la session Spark
+spark.stop()
+
 def main():
         # create a spark session
         spark = (
@@ -34,7 +48,7 @@ def main():
         df.show(10, truncate=False)
 
         # JDBC params connexion
-        url = "jdbc:postgresql://192.168.178.194:5432/db"
+        url = "jdbc:postgresql://192.168.178.194:5433/db"
         properties = {
             "user": "root",
             "password": "root",
@@ -76,4 +90,5 @@ def main():
         #df.write.jdbc(url=url, table=table_name_adidas_shoes,mode="append", properties=properties)
 
 if __name__=="__main__":
-    main()
+    # main()
+    pass
