@@ -181,3 +181,116 @@ def testweb(driver):
 
         # Mise à jour du compteur total
         total_articles_seen = len(all_articles)
+
+        def data_scrapped_and_save_to_csv(driver):
+
+            # Open 'Shoes_listings.csv' file for writing the scraped data
+            with open("shoes_listings.csv", "w", newline="", encoding="utf-8") as csvfile:
+                fieldnames = ["price", "title", "subtitle", "number_of_color", "badge", "date", "url"]
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+
+                page_count = 0
+
+                # start a loop that will continue until the desired number of page have bee scraped
+                while page_count < PAGE_COUNT:
+                    # Scroll down the page incrementally to load all property
+                    last_height = driver.execute_script("return window.pageYOffset")
+                    scroll_increment = 200
+
+                    while True:
+                        driver.execute_script("window.scrollTo(0, {});".format(scroll_increment))
+                        time.sleep(1)
+                        new_height = driver.execute_script("return window.pageYOffset;")
+                        if new_height == last_height:
+                            break
+                        last_height = new_height
+                        scroll_increment = scroll_increment + 800
+
+                    # Find the link to the next page
+                    position_y = 4000
+
+                    driver.execute_script("window.scrollTo(0, arguments[0]);", position_y)
+                    wait = WebDriverWait(driver, 20)
+                    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "WEITER"))).click()
+                    wait.until(EC.element_to_be_clickable(By.XPATH, '//button[@class="s-load-more__hidden-tex"]'))
+
+                    time.sleep(10)
+                    # parse the page source with BeautifulSoup
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+                    list_articles = soup.find_all("article", {"class": 'product-grid_product-card__8ufJk'})
+                    print(len(list_articles))
+                    shoes = {}
+                    for item in list_articles:
+                        footer = item.find(re.compile("^footer"))
+                        price = footer.find('div', {"class": "gl-price-item"})
+                        title = footer.find('p', {'data-testid': 'product-card-title'})
+                        subtitle = footer.find('p', {'data-testid': 'product-card-subtitle'})
+                        number_of_color = footer.find('p', {'data-testid': 'product-card-colours'})
+                        badge = footer.find("p", {'class': "product-card-description_badge__m75SV"})
+                        link = item.find(re.compile("^a"))
+                        url = "https://" + link["href"].lstrip('/')
+
+                        shoes["url"] = url.strip() if url else "N/A"
+                        shoes["price"] = price.text.split(" ")[1].strip() if price else "N/A"
+                        shoes["title"] = title.text.strip() if title else "N/A"
+                        shoes["subtitle"] = subtitle.text.strip() if subtitle else "N/A"
+                        shoes["number_of_color"] = number_of_color.text.strip() if number_of_color else "N/A"
+                        shoes["badge"] = badge.text.strip() if badge else "N/A"
+                        shoes["date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                        writer.writerow(shoes)
+
+                    time.sleep(5)
+
+                    page_count += 1
+                    print("Next Page:", page_count)
+
+
+
+                    #  # Loop through result pages until the target page count is reached or no more pages are available
+                    #     while page_count < PAGE_COUNT:
+                    #         last_height = driver.execute_script("return window.pageYOffset")
+                    #         scroll_increment = 200
+                    #
+                    #         # Scroll down the page gradually to trigger lazy-loaded content
+                    #         while True:
+                    #             driver.execute_script("window.scrollTo(0, {});".format(scroll_increment))
+                    #             time.sleep(1)
+                    #             new_height = driver.execute_script("return window.pageYOffset;")
+                    #             if new_height == last_height:
+                    #                 break
+                    #             last_height = new_height
+                    #             scroll_increment += 200
+                    #
+                    #         try:
+                    #             next_button = WebDriverWait(driver, 20).until(
+                    #                 EC.visibility_of_element_located((By.XPATH, '//button[@rel="next"]'))
+                    #             )
+                    #             # If the button is visible, scroll it into view and click it
+                    #             driver.execute_script("arguments[0].scrollIntoView();", next_button)
+                    #             next_button.click()
+                    #             time.sleep(3)
+                    #             break  # Exit the loop after clicking the button
+                    #
+                    #         except Exception as ex:
+                    #             # No more pages available or an error occurred
+                    #             end_of_pages = True
+                    #
+                    #         finally:
+                    #             # Parse the current page with BeautifulSoup
+                    #             soup = BeautifulSoup(driver.page_source, "html.parser")
+                    #             list_articles = soup.find_all("li", {"class": 's-grid__item'})
+                    #
+                    #             # Select only new articles not seen before
+                    #             new_articles = list_articles[total_articles_seen:]
+                    #             total_articles_seen = len(list_articles)
+                    #
+                    #             # Process articles
+                    #             extract_and_save_products(new_articles, category)
+                    #
+                    #             if end_of_pages:
+                    #                 break
+                    #             else:
+                    #                 page_count += 1
