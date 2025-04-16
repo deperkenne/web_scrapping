@@ -28,7 +28,7 @@ class button_not_clicable_exception(BaseException):
 
 
 # Set the number of pages to scrape
-PAGE_COUNT = 1
+PAGE_COUNT = 2
 
 # List of product categories to search
 product_categories = [
@@ -38,7 +38,7 @@ product_categories = [
 ]
 
 product_categories1 = [
-    "Baumarkt"
+   "Multimedia","Wein & Spirituosen"
 ]
 
 # Configure Chrome options to keep the browser open
@@ -88,7 +88,7 @@ def scroll_through_results(category):
     page_count = 0
     total_articles_seen = 0
     # Loop through result pages until the target page count is reached or no more pages are available
-    while page_count < PAGE_COUNT :
+    while True :
         last_height = driver.execute_script("return window.pageYOffset")
         scroll_increment = 200
 
@@ -113,6 +113,28 @@ def scroll_through_results(category):
 
         scroll_increment = driver.execute_script("return window.pageYOffset")
 
+        scroll_down(scroll_increment, last_height)
+
+
+        # Parse the current page with BeautifulSoup
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        list_articles = soup.find_all("li", {"class": 's-grid__item'})
+        #print(len(list_articles))
+
+        # Select only new articles that haven't been seen before
+        new_articles = list_articles[total_articles_seen:]
+        total_articles_seen = len(list_articles)
+
+        # Process and save articles to the CSV
+        extract_and_save_products(new_articles, category)
+
+
+
+
+        # Increment page count and continue to the next page
+        #page_count += 1
+
+def scroll_down(scroll_increment,last_height):
         while True:
 
             # Scroll down by incrementing the scroll position
@@ -126,34 +148,15 @@ def scroll_through_results(category):
             last_height = new_height
             scroll_increment += 200  # Increment scroll position for the next scroll
 
-
-        # Parse the current page with BeautifulSoup
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        list_articles = soup.find_all("li", {"class": 's-grid__item'})
-        print(len(list_articles))
-
-        # Select only new articles that haven't been seen before
-        new_articles = list_articles[total_articles_seen:]
-        total_articles_seen = len(list_articles)
-
-        # Process and save articles to the CSV
-        extract_and_save_products(new_articles, category)
-
-
-
-
-        # Increment page count and continue to the next page
-        page_count += 1
-
-
-
-
 # Function to extract product information and save it into a CSV file
 def extract_and_save_products(list_articles, category):
     # Open or create a CSV file for the specific category
     with open(f"{category}.csv", "a", newline="", encoding="utf-8") as csvfile:
         fieldnames = ["title", "subtitle", "description", "discount", "old_price", "new_price", "date", "images", "category"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if writer:
+            writer.writeheader()
+
 
         # Write header only if the file is empty
 
@@ -184,9 +187,9 @@ def extract_and_save_products(list_articles, category):
             }
 
             # Write the product data to the CSV file
-            #writer.writerow(product)
+            writer.writerow(product)
 
-            print(product)
+            #print(product)
 
 
 
