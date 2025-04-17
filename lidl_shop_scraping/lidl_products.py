@@ -15,18 +15,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-class button_not_clicable_exception(BaseException):
-
-
-        def __init__(self, message):
-             self.message = message
-
-        def get_message(self):
-            print(self.message)
-
-
-
-
 # Set the number of pages to scrape
 PAGE_COUNT = 2
 
@@ -38,8 +26,9 @@ product_categories = [
 ]
 
 product_categories1 = [
-   "Multimedia","Wein & Spirituosen"
-]
+        "Baumarkt", "Wohnen", "Gesundheit & Pflege"
+
+    ]
 
 # Configure Chrome options to keep the browser open
 options = webdriver.ChromeOptions()
@@ -91,36 +80,16 @@ def scroll_through_results(category):
     while True :
         last_height = driver.execute_script("return window.pageYOffset")
         scroll_increment = 200
-
-        while True:
-
-            # Scroll down by incrementing the scroll position
-            driver.execute_script(f"window.scrollTo(0, {scroll_increment});")
-            time.sleep(1)  # Wait for lazy-loaded content to appear
-            new_height = driver.execute_script("return window.pageYOffset;")
-
-            # If the scroll position hasn't changed, we've reached the bottom of the page
-            if new_height == last_height:
-                break
-            last_height = new_height
-            scroll_increment += 200  # Increment scroll position for the next scroll
-
+        scroll_down(scroll_increment, last_height)
         position_y = 2000
         driver.execute_script("window.scrollTo(0, arguments[0]);", position_y)
         wait = WebDriverWait(driver, 20)
         wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@rel="next"]'))).click()
-
-
         scroll_increment = driver.execute_script("return window.pageYOffset")
-
-        scroll_down(scroll_increment, last_height)
-
-
+        scroll_down(scroll_increment,last_height)
         # Parse the current page with BeautifulSoup
         soup = BeautifulSoup(driver.page_source, "html.parser")
         list_articles = soup.find_all("li", {"class": 's-grid__item'})
-        #print(len(list_articles))
-
         # Select only new articles that haven't been seen before
         new_articles = list_articles[total_articles_seen:]
         total_articles_seen = len(list_articles)
@@ -156,11 +125,6 @@ def extract_and_save_products(list_articles, category):
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         if writer:
             writer.writeheader()
-
-
-        # Write header only if the file is empty
-
-
         for item in list_articles:
             # Extract description and images
             description_product =  extract_product_description(item)

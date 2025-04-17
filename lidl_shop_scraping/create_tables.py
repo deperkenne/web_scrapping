@@ -14,6 +14,8 @@ def connection_to_db():
                                 password="root")
         print("connection to database success")
         cur = conn.cursor()
+
+
     except Exception as e:
         print("error :", e.__str__())
 
