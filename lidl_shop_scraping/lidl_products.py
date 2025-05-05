@@ -99,10 +99,6 @@ def scroll_through_results(category):
 
 
 
-
-        # Increment page count and continue to the next page
-        #page_count += 1
-
 def scroll_down(scroll_increment,last_height):
         while True:
 
@@ -116,6 +112,7 @@ def scroll_down(scroll_increment,last_height):
                 break
             last_height = new_height
             scroll_increment += 200  # Increment scroll position for the next scroll
+
 
 # Function to extract product information and save it into a CSV file
 def extract_and_save_products(list_articles, category):
@@ -153,7 +150,7 @@ def extract_and_save_products(list_articles, category):
             # Write the product data to the CSV file
             writer.writerow(product)
 
-            #print(product)
+
 
 
 
