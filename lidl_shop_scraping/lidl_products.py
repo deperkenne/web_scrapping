@@ -15,8 +15,6 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 
-# Set the number of pages to scrape
-PAGE_COUNT = 2
 
 # List of product categories to search
 product_categories = [
@@ -25,10 +23,6 @@ product_categories = [
     "Gesundheit & Pflege"
 ]
 
-product_categories1 = [
-        "Baumarkt", "Wohnen", "Gesundheit & Pflege"
-
-    ]
 
 # Configure Chrome options to keep the browser open
 options = webdriver.ChromeOptions()
@@ -50,7 +44,7 @@ time.sleep(10)
 
 # Function to perform a search for each category and scroll through results
 def search_and_scrape_each_category():
-    for category in product_categories1:
+    for category in product_categories:
         # Locate the search input field
         input_element = driver.find_element(By.ID, "s-search-input-field")
 
