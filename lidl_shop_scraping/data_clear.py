@@ -20,6 +20,7 @@ def read_line(input_file):
     with open(input_file, "r", encoding="utf-8") as infile, open(f"{input_file}_update.csv", "w", encoding="utf-8") as outfile:
         for line in infile:
             try:
+                #  col represent a column in csv file
                 index_col_subtitle_start = line.index('"')
                 index_col_subtitle_end = line.index('",')
                 index_col_description_start = line.index('"{')

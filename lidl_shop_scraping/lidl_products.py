@@ -1,12 +1,8 @@
 import csv
-import re
 import time
 from datetime import datetime
 import json
-
-from Tools.scripts.texi2html import increment
 from bs4 import BeautifulSoup
-from colorlog import exception
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
