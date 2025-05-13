@@ -82,11 +82,11 @@ This project performs web scraping of Lidl's online product catalog and processe
 ####
 ## Screenshots
 ### Lidl ETL
-![Lidl_data_pipeline.png](image%2FLidl_data_pipeline.png)
+![Lidl_data_pipeline.png](lidl_shop_scraping/image%2FLidl_data_pipeline.png)
 
 ####
 ### Silver Lidl Table part 1
-![silver_lidl_table.png](image%2Fsilver_lidl_table.png)
+![silver_lidl_table.png](lidl_shop_scraping/image%2Fsilver_lidl_table.png)
 ### Silver Lidl Table part 2
-![silver_lidl_table02.png](image%2Fsilver_lidl_table02.png)
+![silver_lidl_table02.png](lidl_shop_scraping/image%2Fsilver_lidl_table02.png)
 
