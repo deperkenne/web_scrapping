@@ -14,9 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # List of product categories to search
 product_categories = [
-    "Baumarkt", "Haushalt & Küche", "Wohnen", "Baby & Kind",
-    "Multimedia", "Wein & Spirituosen", "Sport & Freizeit",
-    "Gesundheit & Pflege"
+    "Haushalt & Küche", "Baby & Kind",
+    "Multimedia", "Sport & Freizeit",
 ]
 
 
